@@ -6,13 +6,22 @@ import LogoutButton from "@/components/auth/LogoutButton";
 import ProductList from "@/components/products/ProductList.js";
 import Pagination from "@/components/pagination/Pagination";
 import PageSizeSelector from "@/components/pagination/PageSizeSelector";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { parsePositiveInteger, parsePageSize } from "@/utils/pagination";
+
 
 export default function ProductsPage() {
   const { authenticated, checking } = useAuth();
 
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
+  const router = useRouter();
+  const  searchParams = useSearchParams();
+
+  const initialPage = parsePositiveInteger(searchParams.get("page"), 1)
+  const initialPageSize = parsePageSize(searchParams.get("limit"))
+
+  const [page, setPage] = useState(initialPage);
+  const [pageSize, setPageSize] = useState(initialPageSize);
 
   const skip = (page - 1) * pageSize;
 
@@ -30,17 +39,56 @@ export default function ProductsPage() {
   const totalPages = Math.ceil(total / pageSize);
 
   function handlePageChange(newPage){
-    setPage(newPage)
+    updateUrl({
+        page:newPage
+    })
   }
 
   function handlePageSizeChange(newPageSize){
-    setPageSize(newPageSize);
-    setPage(1);
+    updateUrl({
+        page: 1,
+        limit: newPageSize
+    })
   }
 
   const startItem = total === 0 ? 0 : skip + 1;
 
   const endItem = Math.min(skip + pageSize, total)
+
+  useEffect(() => {
+    const urlPage = parsePositiveInteger(searchParams.get("page"),1)
+
+    const urlPageSize = parsePageSize(searchParams.get("limit",1),20)
+
+    setPage(urlPage);
+    setPageSize(urlPageSize)
+  }, [searchParams])
+
+
+  function updateUrl(updates){
+    const params = new URLSearchParams(searchParams.toString());
+
+    Object.entries(updates).forEach(([key, value]) => {
+        if(value === null || value === undefined){
+            params.delete(key);
+        }else{
+            params.set(key, String(value));
+        }
+    })
+
+    router.push(`/products?${params.toString()}`);
+  }
+
+  useEffect(() => {
+    if(!loading && total > 0 && page > totalPages){
+
+        const params = new URLSearchParams(searchParams.toString());
+
+        params.set("page", String(totalPages));
+
+        router.replace(`/products?${params.toString()}`);
+    }
+  }, [loading,error,total,totalPages,searchParams,router])
 
   if (checking) {
     return (
