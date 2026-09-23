@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function ProductCard({ product }) {
   return (
     <article className="rounded-xl border border-gray-200 bg-white p-4">
@@ -10,7 +12,9 @@ export default function ProductCard({ product }) {
 
         <div className="min-w-0 flex-1">
           <h3 className="truncate font-semibold text-gray-900">
-            {product.title}
+            <Link href={`/products/${product.id}`} className="font-medium hover:underline">
+              {product.title}
+            </Link>
           </h3>
 
           <p className="mt-1 text-sm capitalize text-gray-500">

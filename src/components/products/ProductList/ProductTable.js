@@ -1,3 +1,6 @@
+import Link from "next/link";
+
+
 export default function ProductTable({ products }) {
   return (
     <div className="hidden overflow-hidden rounded-xl border border-gray-200 bg-white md:block">
@@ -42,7 +45,9 @@ export default function ProductTable({ products }) {
                     />
 
                     <span className="font-medium text-gray-900">
+                      <Link href={`/products/${product.id}`} className="font-medium hover:underline">
                       {product.title}
+                      </Link>
                     </span>
                   </div>
                 </td>
