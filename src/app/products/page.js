@@ -4,9 +4,17 @@ import { useProducts } from "@/hooks/useProducts";
 import { useAuth } from "@/hooks/useAuth";
 import LogoutButton from "@/components/auth/LogoutButton";
 import ProductList from "@/components/products/ProductList.js";
+import Pagination from "@/components/pagination/Pagination";
+import PageSizeSelector from "@/components/pagination/PageSizeSelector";
+import { useState } from "react";
 
 export default function ProductsPage() {
   const { authenticated, checking } = useAuth();
+
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+
+  const skip = (page - 1) * pageSize;
 
   const {
     products,
@@ -15,9 +23,24 @@ export default function ProductsPage() {
     error,
     retry,
   } = useProducts({
-    limit: 20,
-    skip: 0,
+    limit: pageSize,
+    skip,
   });
+
+  const totalPages = Math.ceil(total / pageSize);
+
+  function handlePageChange(newPage){
+    setPage(newPage)
+  }
+
+  function handlePageSizeChange(newPageSize){
+    setPageSize(newPageSize);
+    setPage(1);
+  }
+
+  const startItem = total === 0 ? 0 : skip + 1;
+
+  const endItem = Math.min(skip + pageSize, total)
 
   if (checking) {
     return (
@@ -79,11 +102,31 @@ export default function ProductsPage() {
         )}
 
         {!loading && !error && (
-          <div className="mt-6">
-            <ProductList products={products} />
-          </div>
-        )}
+  <>
+    <div className="mt-6">
+      <ProductList products={products} />
+    </div>
 
+    <div className="mt-4 rounded-xl border border-gray-200 bg-white">
+      <div className="flex flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm text-gray-600">
+          Showing {startItem}–{endItem} of {total}
+        </p>
+
+        <PageSizeSelector
+          pageSize={pageSize}
+          onPageSizeChange={handlePageSizeChange}
+        />
+      </div>
+
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+      />
+    </div>
+  </>
+)}
       </div>
     </main>
   );
