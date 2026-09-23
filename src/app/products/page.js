@@ -32,7 +32,7 @@ export default function ProductsPage() {
 
   const skip = (page - 1) * pageSize;
 
-  const activeSearch = searchParams.get("search") || "";
+  const activeSearch = (searchParams.get("search") || "").trim();
 
   const {
     products,

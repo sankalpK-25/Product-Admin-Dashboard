@@ -1,7 +1,16 @@
 "use client";
 
-import { getProducts, searchProducts } from "@/services/products.service";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+
+import {
+  getProducts,
+  searchProducts,
+} from "@/services/products.service";
 
 export function useProducts({
   limit = 20,
@@ -15,19 +24,18 @@ export function useProducts({
   const [error, setError] = useState("");
 
   const requestIdRef = useRef(0);
-
   const abortControllerRef = useRef(null);
-
-  if(abortControllerRef.current){
-    abortControllerRef.current.abort();
-  }
-
-  const controller = new AbortController();
-
-  abortControllerRef.current = controller
 
   const fetchProducts = useCallback(async () => {
     const requestId = ++requestIdRef.current;
+
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    const controller = new AbortController();
+
+    abortControllerRef.current = controller;
 
     setLoading(true);
     setError("");
@@ -40,11 +48,13 @@ export function useProducts({
           query: search.trim(),
           limit,
           skip,
+          signal: controller.signal,
         });
       } else {
         data = await getProducts({
           limit,
           skip,
+          signal: controller.signal,
         });
       }
 
@@ -74,6 +84,12 @@ export function useProducts({
 
   useEffect(() => {
     fetchProducts();
+
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
   }, [fetchProducts]);
 
   return {
