@@ -1,18 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { loginUser } from "@/services/auth.service.js";
-import { setToken } from "@/lib/auth";
+import { isAuthenticated, setToken } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
-    const router = useRouter();
+  const router = useRouter();
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if(isAuthenticated()) {
+        router.replace("/products")
+    }
+  }, [router])
 
 
 
