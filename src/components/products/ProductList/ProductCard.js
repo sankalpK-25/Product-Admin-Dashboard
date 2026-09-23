@@ -4,6 +4,11 @@ export default function ProductCard({ product }) {
   return (
     <article className="rounded-xl border border-gray-200 bg-white p-4">
       <div className="flex gap-4">
+
+        <Link href={`products/${product.id}/edit`} className="mt-4 inline-block text-sm font-medium underline">
+        Edit Product
+        </Link>
+        
         <img
           src={product.thumbnail}
           alt={product.title}

@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function ProductTable({ products }) {
   return (
-    <div className="hidden overflow-hidden rounded-xl border border-gray-200 bg-white md:block">
+    <div className="hidden overflow-hidden rounded-xl border border-gray-200 bg-white md:block text-black">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[800px]">
           <thead className="border-b bg-gray-50">
@@ -26,6 +26,10 @@ export default function ProductTable({ products }) {
 
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
                 Stock
+              </th>
+
+              <th className="px-4 py-3 text-left">
+                Actions
               </th>
             </tr>
           </thead>
@@ -66,6 +70,10 @@ export default function ProductTable({ products }) {
 
                 <td className="px-6 py-4 text-sm text-gray-600">
                   {product.stock}
+                </td>
+
+                <td className="px-4 py-3">
+                  <Link href={`products/${product.id}/edit`} className="font-medium underline">Edit</Link>
                 </td>
               </tr>
             ))}

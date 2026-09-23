@@ -3,10 +3,14 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getProductById } from "@/services/products.service";
+import Link from "next/link";
+import { useProductStore } from "@/context/ProductContext";
+
 
 export default function ProductDetailsPage() {
   const { id } = useParams();
   const router = useRouter();
+  const {getUpdatedProduct} = useProductStore()
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -19,7 +23,8 @@ export default function ProductDetailsPage() {
 
       try {
         const data = await getProductById(id);
-        setProduct(data);
+        const locallyUpdatedProduct = getUpdatedProduct(id);
+        setProduct(locallyUpdatedProduct || data);
       } catch (error) {
         console.error(error);
         setError("Product not found.");
@@ -66,6 +71,10 @@ export default function ProductDetailsPage() {
       >
         ← Back to Products
       </button>
+
+      <Link href={`/products/${product.id}/edit`} className="ml-10 mt-4 inline-block text-sm font-medium underline">
+        Edit Product
+      </Link>
 
       <div className="grid gap-8 md:grid-cols-2">
         {/* Images */}
