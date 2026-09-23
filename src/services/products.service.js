@@ -1,10 +1,14 @@
 import api from "@/lib/axios";
 
-export async function getProducts({limit = 20, skip = 0, signal,} = {}) {
+export async function getProducts({limit = 20, skip = 0, sortBy = "", order  = "", signal} = {}) {
     const response = await api.get("/products", {
         params: { 
             limit,
             skip,
+            ...(sortBy && order ? {
+                sortBy,
+                order,
+            } : {}),
         }, 
         signal
     });
@@ -22,13 +26,19 @@ export async function searchProducts({
     query,
     limit = 20,
     skip = 0,
+    sortBy = "",
+    order = "",
     signal,
 } = {}) {
     const response = await api.get("/products/search", {
         params: {
             q: query,
             limit,
-            skip
+            skip,
+            ...(sortBy && order ? {
+                sortBy,
+                order,
+            } : {}),
         },
         signal,
     })
@@ -40,12 +50,18 @@ export async function getProductsByCategory({
     category,
     limit = 20,
     skip = 0,
+    sortBy = "",
+    order = "",
     signal,
 } = {}) {
     const response = await api.get(`products/category/${encodeURIComponent(category)}`, {
         params: {
             limit,
             skip,
+            ...(sortBy && order ? {
+                sortBy,
+                order,
+            } : {}),
         },
         signal,
     })

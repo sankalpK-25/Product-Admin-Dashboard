@@ -12,6 +12,8 @@ import { parsePositiveInteger, parsePageSize } from "@/utils/pagination";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useCategories } from "@/hooks/useCategories";
 import CategoryFilter from "@/components/products/CategoriesFilter";
+import SortSelector from "@/components/products/SortSelector";
+import { parseSort, parseSortOrder } from "@/utils/productFilters";
 
 
 
@@ -39,6 +41,10 @@ export default function ProductsPage() {
 
   const activeCategory = (searchParams.get("category") || "").trim();
 
+  const activeSort = parseSort(searchParams.get("sort"));
+
+  const activeOrder = parseSortOrder(searchParams.get("order"))
+
   const {categories, loading: categoriesLoading, error: categoriesError, retry: retryCategories} = useCategories()
 
   const {
@@ -51,7 +57,9 @@ export default function ProductsPage() {
     limit: pageSize,
     skip,
     search: activeSearch,
-    category: activeCategory
+    category: activeCategory,
+    sortBy: activeSort,
+    order: activeOrder,
   });
 
   const totalPages = Math.ceil(total / pageSize);
@@ -181,6 +189,22 @@ export default function ProductsPage() {
   router.push(`/products?${params.toString()}`);
 }
 
+function handleSortChange(sortBy, order){
+    const params = new URLSearchParams(searchParams.toString());
+
+    params.set("page", "1");
+
+    if(sortBy && order){
+        params.set("sort", sortBy);
+        params.set("order", order);
+    }else{
+        params.delete("sort");
+        params.delete("order");
+    }
+
+    router.push(`/products?${params.toString()}`);
+}
+
   return (
     <main className="min-h-screen bg-gray-100">
       <header className="border-b bg-white">
@@ -237,6 +261,17 @@ export default function ProductsPage() {
     Search products
   </label>
 
+  <input
+    id="product-search"
+    type="search"
+    value={searchInput}
+    onChange={(event) =>
+      setSearchInput(event.target.value)
+    }
+    placeholder="Search products..."
+    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 outline-none focus:border-black"
+  />
+
   <div className="mt-4">
   <CategoryFilter
     categories={categories}
@@ -245,6 +280,11 @@ export default function ProductsPage() {
     loading={categoriesLoading}
   />
 </div>
+
+<SortSelector
+  sortBy={activeSort}
+  order={activeOrder}
+  onChange={handleSortChange}/>
 
 {categoriesError && (
   <div className="mt-2 flex items-center gap-2">
@@ -262,16 +302,7 @@ export default function ProductsPage() {
   </div>
 )}
 
-  <input
-    id="product-search"
-    type="search"
-    value={searchInput}
-    onChange={(event) =>
-      setSearchInput(event.target.value)
-    }
-    placeholder="Search products..."
-    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 outline-none focus:border-black"
-  />
+  
 </div>
 
       <ProductList products={products} />

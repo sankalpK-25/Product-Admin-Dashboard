@@ -17,7 +17,10 @@ export function useProducts({
   limit = 20,
   skip = 0,
   search = "",
-  category = ""
+  category = "",
+  sortBy = "",
+  order = ""
+
 } = {}) {
   const [products, setProducts] = useState([]);
   const [total, setTotal] = useState(0);
@@ -50,6 +53,8 @@ export function useProducts({
           query: search.trim(),
           limit,
           skip,
+          sortBy,
+          order,
           signal: controller.signal,
         });
 
@@ -58,6 +63,8 @@ export function useProducts({
             category: category.trim(),
             limit,
             skip,
+            sortBy,
+            order,
             signal: controller.signal
         })
 
@@ -65,6 +72,8 @@ export function useProducts({
         data = await getProducts({
           limit,
           skip,
+          sortBy,
+          order,
           signal: controller.signal,
         });
       }
@@ -91,7 +100,7 @@ export function useProducts({
         setLoading(false);
       }
     }
-  }, [limit, skip, search, category]);
+  }, [limit, skip, search, category, sortBy, order]);
 
   useEffect(() => {
     fetchProducts();
