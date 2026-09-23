@@ -10,12 +10,14 @@ import {
 import {
   getProducts,
   searchProducts,
+  getProductsByCategory
 } from "@/services/products.service";
 
 export function useProducts({
   limit = 20,
   skip = 0,
   search = "",
+  category = ""
 } = {}) {
   const [products, setProducts] = useState([]);
   const [total, setTotal] = useState(0);
@@ -50,6 +52,15 @@ export function useProducts({
           skip,
           signal: controller.signal,
         });
+
+     }else if(category.trim()){
+        data = await getProductsByCategory({
+            category: category.trim(),
+            limit,
+            skip,
+            signal: controller.signal
+        })
+
       } else {
         data = await getProducts({
           limit,
@@ -80,7 +91,7 @@ export function useProducts({
         setLoading(false);
       }
     }
-  }, [limit, skip, search]);
+  }, [limit, skip, search, category]);
 
   useEffect(() => {
     fetchProducts();

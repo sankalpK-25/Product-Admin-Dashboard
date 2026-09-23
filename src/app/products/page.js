@@ -10,6 +10,9 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { parsePositiveInteger, parsePageSize } from "@/utils/pagination";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useCategories } from "@/hooks/useCategories";
+import CategoryFilter from "@/components/products/CategoriesFilter";
+
 
 
 export default function ProductsPage() {
@@ -34,6 +37,10 @@ export default function ProductsPage() {
 
   const activeSearch = (searchParams.get("search") || "").trim();
 
+  const activeCategory = (searchParams.get("category") || "").trim();
+
+  const {categories, loading: categoriesLoading, error: categoriesError, retry: retryCategories} = useCategories()
+
   const {
     products,
     total,
@@ -43,7 +50,8 @@ export default function ProductsPage() {
   } = useProducts({
     limit: pageSize,
     skip,
-    search: activeSearch
+    search: activeSearch,
+    category: activeCategory
   });
 
   const totalPages = Math.ceil(total / pageSize);
@@ -120,7 +128,12 @@ export default function ProductsPage() {
   );
 
   if (debouncedSearch.trim()) {
-    params.set("search", debouncedSearch.trim());
+    params.set(
+      "search",
+      debouncedSearch.trim()
+    );
+
+    params.delete("category");
   } else {
     params.delete("search");
   }
@@ -147,6 +160,26 @@ export default function ProductsPage() {
   if (!authenticated) {
     return null;
   }
+
+  function handleCategoryChange(category) {
+  const params = new URLSearchParams(
+    searchParams.toString()
+  );
+
+  params.set("page", "1");
+
+  if (category) {
+    params.set("category", category);
+  } else {
+    params.delete("category");
+  }
+
+  if (activeSearch) {
+    params.delete("search");
+  }
+
+  router.push(`/products?${params.toString()}`);
+}
 
   return (
     <main className="min-h-screen bg-gray-100">
@@ -203,6 +236,31 @@ export default function ProductsPage() {
   >
     Search products
   </label>
+
+  <div className="mt-4">
+  <CategoryFilter
+    categories={categories}
+    value={activeCategory}
+    onChange={handleCategoryChange}
+    loading={categoriesLoading}
+  />
+</div>
+
+{categoriesError && (
+  <div className="mt-2 flex items-center gap-2">
+    <p className="text-sm text-red-600">
+      {categoriesError}
+    </p>
+
+    <button
+      type="button"
+      onClick={retryCategories}
+      className="text-sm font-medium underline"
+    >
+      Retry
+    </button>
+  </div>
+)}
 
   <input
     id="product-search"
