@@ -1,9 +1,11 @@
 import api from "@/lib/axios";
-import { resolve } from "styled-jsx/css";
 
-export async function getProducts(params = {}) {
+export async function getProducts({limit = 20, skip = 0} = {}) {
     const response = await api.get("/products", {
-        params,
+        params: { 
+            limit,
+            skip,
+        }
     });
 
     return response.data;
