@@ -3,6 +3,7 @@
 import { useProducts } from "@/hooks/useProducts";
 import { useAuth } from "@/hooks/useAuth";
 import LogoutButton from "@/components/auth/LogoutButton";
+import ProductList from "@/components/products/ProductList.js";
 
 export default function ProductsPage() {
   const { authenticated, checking } = useAuth();
@@ -78,12 +79,11 @@ export default function ProductsPage() {
         )}
 
         {!loading && !error && (
-          <div className="mt-6 rounded-lg bg-white p-6">
-            <p className="text-gray-600">
-              Loaded {products.length} products.
-            </p>
+          <div className="mt-6">
+            <ProductList products={products} />
           </div>
         )}
+
       </div>
     </main>
   );
