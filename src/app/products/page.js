@@ -14,6 +14,7 @@ import { useCategories } from "@/hooks/useCategories";
 import CategoryFilter from "@/components/products/CategoriesFilter";
 import SortSelector from "@/components/products/SortSelector";
 import { parseSort, parseSortOrder } from "@/utils/productFilters";
+import Link from "next/link";
 
 
 
@@ -212,6 +213,10 @@ function handleSortChange(sortBy, order){
           <h1 className="text-xl font-bold text-gray-900">
             Product Admin
           </h1>
+
+          <Link href={`/products/new`} className="rounded-md bg-black px-4 py-2 text-sm font-medium text-white">
+          Add Product
+          </Link>
 
           <LogoutButton />
         </div>

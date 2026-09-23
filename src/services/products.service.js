@@ -68,3 +68,10 @@ export async function getProductsByCategory({
 
     return response.data;
 }
+
+export async function addProduct(product) {
+    const response = await api.post("/products/add", product);
+
+    return response.data;
+    
+}
