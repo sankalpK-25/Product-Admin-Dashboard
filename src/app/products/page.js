@@ -9,6 +9,7 @@ import PageSizeSelector from "@/components/pagination/PageSizeSelector";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { parsePositiveInteger, parsePageSize } from "@/utils/pagination";
+import { useDebounce } from "@/hooks/useDebounce";
 
 
 export default function ProductsPage() {
@@ -23,7 +24,15 @@ export default function ProductsPage() {
   const [page, setPage] = useState(initialPage);
   const [pageSize, setPageSize] = useState(initialPageSize);
 
+  const initialSearch = searchParams.get("search") || "";
+
+  const [searchInput, setSearchInput] = useState(initialSearch);
+
+  const debouncedSearch = useDebounce(searchInput, 400)
+
   const skip = (page - 1) * pageSize;
+
+  const activeSearch = searchParams.get("search") || "";
 
   const {
     products,
@@ -34,6 +43,7 @@ export default function ProductsPage() {
   } = useProducts({
     limit: pageSize,
     skip,
+    search: activeSearch
   });
 
   const totalPages = Math.ceil(total / pageSize);
@@ -89,6 +99,40 @@ export default function ProductsPage() {
         router.replace(`/products?${params.toString()}`);
     }
   }, [loading,error,total,totalPages,searchParams,router])
+
+  useEffect(() => {
+    const urlSearch = searchParams.get("search") || "";
+
+    setSearchInput(urlSearch);
+  }, [searchParams])
+
+
+  useEffect(() => {
+  const currentSearch =
+    searchParams.get("search") || "";
+
+  if (debouncedSearch === currentSearch) {
+    return;
+  }
+
+  const params = new URLSearchParams(
+    searchParams.toString()
+  );
+
+  if (debouncedSearch.trim()) {
+    params.set("search", debouncedSearch.trim());
+  } else {
+    params.delete("search");
+  }
+
+  params.set("page", "1");
+
+  router.push(`/products?${params.toString()}`);
+}, [
+  debouncedSearch,
+  searchParams,
+  router,
+]);
 
   if (checking) {
     return (
@@ -152,6 +196,26 @@ export default function ProductsPage() {
         {!loading && !error && (
   <>
     <div className="mt-6">
+        <div className="mt-6 mb-6 text-gray-800">
+  <label
+    htmlFor="product-search"
+    className="mb-2 block text-sm font-medium text-gray-700"
+  >
+    Search products
+  </label>
+
+  <input
+    id="product-search"
+    type="search"
+    value={searchInput}
+    onChange={(event) =>
+      setSearchInput(event.target.value)
+    }
+    placeholder="Search products..."
+    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 outline-none focus:border-black"
+  />
+</div>
+
       <ProductList products={products} />
     </div>
 

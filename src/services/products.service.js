@@ -16,3 +16,21 @@ export async function getProductById(id){
 
     return response.data;
 }
+
+export async function searchProducts({
+    query,
+    limit = 20,
+    skip = 0,
+    signal,
+} = {}) {
+    const response = await api.get("/products/search", {
+        params: {
+            q: query,
+            limit,
+            skip,
+        },
+        signal,
+    })
+
+    return response.data;
+}
